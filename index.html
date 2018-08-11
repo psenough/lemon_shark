@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ 	<title>Hákarl me beautiful!</title>
+ 	<meta charset='utf-8'>
+	<link rel="shortcut icon" type="image/x-icon" href="shark.ico" />
+ 	<link href='pacifico.css' rel='stylesheet' type='text/css'>
+	<style>
+	
+	* {
+		margin: 0px;
+		padding: 0px;
+		overflow: hidden;
+	}
+	
+	body {
+		background: white;
+	}
+	
+ 	.aligncenter {
+ 		position: absolute;
+ 		top: 0px;
+ 		width: 100%;
+ 		text-align: center;
+ 		margin: auto;
+ 	}
+	
+	#message {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		font-family: 'Pacifico', cursive;
+		color: #fff;
+		width: 100%;
+		height: 100%;
+		margin: auto;
+		text-align: center;
+		font-size: 2em;
+		overflow-y: hidden;
+		text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+		line-height: 2em;
+		z-index: 21;
+	}
+	
+	#message span {
+		position: relative;
+		top: 70%;
+		font-size:2em;
+	}
+	
+	
+ 	</style>
+	<script src="requestanimationframe.js"></script>
+	<script src="player.js"></script>
+	<script src="pt.js"></script>
+  	<script type="application/javascript">
+
+rand = function(n){
+	return Math.floor(Math.random()*n);
+};
+
+var rms = 0.0;
+var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
+var is_safari = navigator.userAgent.indexOf("Safari") > -1;
+if ((is_chrome)&&(is_safari)) {is_safari=false;}
+
+var module = new Modplayer();
+
+var shark;
+var shark_flip;
+var lemon;
+var lemon_flip;
+
+function init() {
+	module.stopaudio();
+	module.setautostart(true);
+	var loadInterval=setInterval(function(){
+		if (!module.delayload) {
+		   module.load("tempest-acidjazz.mod");
+		   clearInterval(loadInterval);
+		}
+	}, 200);
+	
+	rerandom();
+
+	shark = document.getElementById("shark");
+	shark_flip = document.getElementById("shark_flip");
+	lemon = document.getElementById("lemon");
+	lemon_flip = document.getElementById("lemon_flip");
+	
+	drawCanvas();
+}
+
+var w;
+var h;
+var ctx;
+var halfw;
+var halfh;
+
+map = function(value, istart, istop, ostart, ostop) {
+    return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+};
+
+var area = Math.random();
+var curr_area = 0.5;
+var value = 0.0;
+var vel = 0.5;
+var ft = 0.01;
+
+//http://www.color-hex.com/color-palettes/?page=2
+
+var pantone_sea_side_complements = [ "rgba(0,59,111,0.5)", "rgba(102,178,178,0.5)", "rgba(156,163,208,0.5)", "rgba(255,247,214,0.5)", "rgba(178,102,178,0.5)" ];
+
+var pantone_samani_project = [ "rgba(30,200,187,0.5)", "rgba(172,192,42,0.5)", "rgba(58,59,61,0.5)", "rgba(203,89,32,0.5)", "rgba(255,255,255,0.5)" ];
+
+var prr = [];
+var rrr = [];
+
+function rerandom() {
+	for (var d=0; d<12; d++) {
+		prr[d] = rand(6);
+		rrr[d] = (Math.random()>0.5);
+	}
+}
+
+var num = 7;
+var stopthis = false;
+
+function drawCanvas() {
+
+	resize();
+	loadLine('','');
+	
+	function drawThis() {
+		
+		var d2 = new Date();
+		var n2 = d2.getTime(); 
+		var iTimer = (n2-n) / 2000;
+		
+		var sin1 = Math.sin((n2-n)/200)+1.0;
+		var cos1 = Math.cos((n2-n)/400)+1.0;
+		var cos2 = Math.cos((n2-n)/2800);
+		
+		
+		ctx.lineWidth = 1;
+		ctx.save();
+		ctx.translate(w*.5, h*.5);
+		var depth = 150.0;
+
+		/*for (d=0; d<6; d++) {				
+			ctx.strokeStyle = pantone_samani_project[prr[d]];
+			ctx.fillStyle = pantone_samani_project[prr[d]];
+			drawShape(num, depth + d*40.0, iTimer, d<=2?true:false, rrr[d*2] );
+		}*/
+		
+		for (d=0; d<6; d++) {				
+			ctx.strokeStyle = pantone_samani_project[prr[d]];
+			ctx.fillStyle = pantone_samani_project[prr[d]];
+			drawShape(num, depth*1.618 + d*40.0, -iTimer, d<=2?true:false, rrr[d] );
+		}
+		
+		ctx.restore();
+		
+		var angle = (Math.PI*2) / num;
+		for (var i=0; i<num; i++) {
+			var step = i*angle;
+			ctx.save();
+			ctx.translate(w*.5 + Math.sin(iTimer + step)*depth, h*.5 + Math.cos(iTimer + step)*depth );
+			var swing = iTimer + Math.sin(iTimer*0.5 + angle)*20.0;
+			for (d=0; d<6; d++) {				
+				ctx.strokeStyle = pantone_samani_project[prr[d]];
+				ctx.fillStyle = pantone_samani_project[prr[d]];
+				drawShape(num, 20.0 + d*30.0, swing, false, rrr[d] );
+			}
+			ctx.restore();
+			
+			for (var i2=0; i2<5; i2++) {
+				var step2 = i2*angle;
+				ctx.save();
+				ctx.translate(w*.5 + Math.sin(iTimer + step)*depth*1.618, h*.5 + Math.cos(iTimer + step)*depth*1.618 );
+				ctx.strokeStyle = pantone_samani_project[prr[i2]];
+				ctx.fillStyle = pantone_samani_project[prr[i2]];
+				drawShape(num, 10.0 + i2*40.0, iTimer, false, true );
+				ctx.restore();
+			}
+			
+		}
+				
+		var thiswidth = parseInt(window.innerWidth * 0.2, 10);
+		ctx.drawImage(shark,0,parseInt(module.chvu[3]*60+10,10),thiswidth,thiswidth);
+		ctx.drawImage(shark_flip,window.innerWidth-thiswidth,parseInt(module.chvu[1]*60+10,10),thiswidth,thiswidth);
+		ctx.drawImage(lemon,0,window.innerHeight-thiswidth-parseInt(module.chvu[2]*60-10,10),thiswidth,thiswidth);
+		ctx.drawImage(lemon_flip,window.innerWidth-thiswidth,window.innerHeight-thiswidth-parseInt(module.chvu[0]*60-10,10),thiswidth,thiswidth);
+	}
+	
+	function drawShape(num, depth, iTimer, tofill, tostroke) {
+		var angle = (Math.PI*2) / num;
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.beginPath();
+		for (var i=0; i<=num; i++) {
+			var step = i*angle;
+			if (i==0) {
+				ctx.moveTo( Math.sin(iTimer + step)*depth, Math.cos(iTimer + step)*depth );
+			} else {
+				ctx.lineTo( Math.sin(iTimer + step)*depth, Math.cos(iTimer + step)*depth );
+			}
+		}
+		if (tofill === true) ctx.fill();
+		if (tostroke === true) ctx.stroke();
+	}
+	
+	requestAnimationFrame( animate );
+	
+	var d = new Date();
+	var n = d.getTime();
+	var repeater = n;
+	var rperiod = 7000;
+	var index = 0;
+
+	function animate() {
+		if (stopthis == false) requestAnimationFrame( animate );
+		//curr_area = area;
+		area = Math.random() * 0.2;
+		//vel = vel + (area - 0.5);
+		//if (vel < 0) vel = 0;
+		value = value + area;
+		//ctx.clearRect(0,0,w,h);
+		ctx.fillStyle = pantone_samani_project[0];
+		ctx.fillRect(0,0,w,h);
+		drawThis();
+		
+		var dom = document.getElementById('message');
+		if (dom) {
+			var d2 = new Date();
+			var n2 = d2.getTime(); 
+			if (((n2-n) > 3500) && (n2-repeater) > rperiod) {
+				repeater = n2;
+				loadLine('',words[index++]);
+				if (index >= words.length) stopthis = true;
+				rerandom();
+				num = rand(10) + 3;
+			}
+		}
+	}
+}
+
+window.onresize = resize;
+
+function resize() {
+	w = window.innerWidth;
+	h = window.innerHeight;
+	
+	var canvas = document.getElementById("canvas");
+	canvas.setAttribute("width", w);
+	canvas.setAttribute("height", h);
+	
+	ctx = canvas.getContext("2d");
+	ctx.width = w;
+	ctx.height = h;
+	halfw = w*.5;
+	halfh = h*.5;
+}
+
+function loadLine(thisclass, thistext) {
+	var content = '';
+	content += '<span class="'+thisclass+'">'+thistext+'</span><br />';
+	document.getElementById('message').innerHTML = content;
+}
+
+var words = [
+"",
+"Hello!<br>My name is Diego Montoya!",
+"You killed my father<br>prepare to die.",
+"",
+"Sharks belong to a family of fish that have skeletons made of cartilage.",
+"Sharks breathe through a series of five to seven gill slits located on either side of their bodies.",
+"All sharks have multiple rows of teeth, that grow in and replace those they lose.",
+"",
+"Lemons are a hybrid between a sour orange and a citron native to Asia.",
+"Lemon trees can produce up to 273 kgs of lemons every year!",
+"Lemon zest, grated rinds, is often used in baking.",
+"",
+"Hákarl is a national dish of Iceland<br>commonly refered to as rotten shark.",
+"Hákarl is made from Greenland sleeper shark left to rot for months.",
+"",
+"Caipirinha is Brazil's national cocktail,<br>made with cachaça, sugar and lime.",
+"No lemons are used making Caipirinha.",
+"No research supports caipirinha going well with rotten shark.",
+"There is a study that indicates sharks prefer jazz to other music genres!",
+"",
+"If you are a lemon shark, please don't drink caipirinhas near children",
+"",
+"Greetings to TPOLM, Jumalauta, Accession, GlenZ, Napalm Core, Co-Processor",
+"and you!",
+"Credits:<br>ps - code & text",
+"firehawk - music player<br>greyanimebeast - lemon shark from the internet", 
+"timbaland - original music<br>Janne Sunni & tempest - lame cover",
+"Thanks for watching the Lemon Shark demo<br>by Pomme Grenade",
+];
+   
+function hexToRgbA(hex){
+    var c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',1)';
+    }
+    throw new Error('Bad Hex');
+}
+
+  </script>
+ </head>
+ <body onload="init()">
+	<img id="shark" src="lemon_shark_by_greyanimebeast-damze4a.png" />
+	<img id="shark_flip" src="lemon_shark_by_greyanimebeast-damze4a_flip.png" />
+	<img id="lemon" src="lemon.png" />
+	<img id="lemon_flip" src="lemon_flip.png" />
+ 	<div class="aligncenter">
+   		<canvas id="canvas" width="800" height="600"></canvas>
+   		<div id="message">jeenio is naked and smells of pommegranate scented rotten shark!!!</div>
+   	</div>
+ </body>
+</html>
